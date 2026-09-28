@@ -1,0 +1,9 @@
+[package]
+name = "image_resizer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hmac = "0.13.0"
+sha1 = "0.11.0"
+base64 = "0.23.1"
