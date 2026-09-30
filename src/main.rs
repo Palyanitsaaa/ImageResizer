@@ -69,6 +69,8 @@ async fn handle_resize(
 
     let full_path = PathBuf::from(&config.base_fs_path).join(&img_path);
     if !full_path.exists() {
+        println!("Path not found: {}", full_path.display());
+
         return Err(StatusCode::NOT_FOUND);
     }
 
