@@ -1,0 +1,19 @@
+[Unit]
+Description=Rust Image Resizer Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+EnvironmentFile=/opt/image_resizer/.env
+ExecStart=/opt/image_resizer/image_resizer
+Restart=always
+RestartSec=3
+
+# Ограничения безопасности
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
