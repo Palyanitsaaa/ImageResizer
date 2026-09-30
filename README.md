@@ -1,4 +1,3 @@
-```markdown
 # Image Resizer Service
 
 A lightweight, high-performance image resizing microservice written in Rust using Axum and Tokio. The service validates incoming requests using an HMAC-SHA1 signature, resizes images proportionally on the fly, and serves them via an NGINX reverse proxy with caching support.
@@ -18,24 +17,25 @@ A lightweight, high-performance image resizing microservice written in Rust usin
 ## Architecture Overview
 
 
-```
-
+```text
 Client (Browser)
-│
-▼
+       │
+       ▼
 [NGINX] ──(Cache Hit?)──► Serve cached image immediately
-│
+       │
+       ▼
 (Cache Miss)
-▼ proxy_pass
+       │
+       ▼
 [Rust Resizer Service]
-│
-├─► 1. Parse URL parameters (token, dimensions, image path)
-├─► 2. Verify HMAC-SHA1 signature
-├─► 3. Read source image from disk
-├─► 4. Resize image proportionally
-└─► 5. Return JPEG payload to NGINX
-
+       │
+       ├─► Parse URL parameters
+       ├─► Verify HMAC-SHA1 signature
+       ├─► Read source image from disk
+       ├─► Resize image proportionally
+       └─► Return JPEG payload to NGINX
 ```
+
 
 ---
 
@@ -44,11 +44,8 @@ Client (Browser)
 The service expects URLs in the following structure:
 
 
-```
-
 /images/{token}/{width}x{height}/{path_to_image}
 
-```
 
 - **`token`**: A 12-character signature derived from HMAC-SHA1 with base64 character replacement (`+` -> `-`, `/` -> `_`, `=` -> `,`).
 - **`{width}x{height}`**: Target bounding box dimensions (e.g., `100x100`).
@@ -56,11 +53,9 @@ The service expects URLs in the following structure:
 
 **Example Request:**
 
-```
 
 [https://cdn.example.com/images/Ytdgfay_Bchx/100x100/upload/images/product/718_2.jpg](https://www.google.com/search?q=https://cdn.example.com/images/Ytdgfay_Bchx/100x100/upload/images/product/718_2.jpg)
 
-```
 
 ---
 
@@ -86,9 +81,6 @@ BASE_IMAGE_PATH=/var/www/www-root/[example.com/](https://example.com/)
 ### Development
 
 ```bash
-# Run tests
-cargo test
-
 # Start the development server (listens on 127.0.0.1:3000)
 cargo run
 
@@ -109,8 +101,8 @@ sudo cp target/release/image_resizer /usr/local/bin/image_resizer
 To route requests properly and prevent static file rules from intercepting dynamic requests, use the `^~` prefix matching modifier:
 
 ```nginx
-# Define the cache zone inside http { ... }
-# proxy_cache_path /var/cache/nginx/images levels=1:2 keys_zone=img_cache:20m max_size=10g inactive=30d use_temp_path=off;
+
+proxy_cache_path /var/cache/nginx/images levels=1:2 keys_zone=img_cache:20m max_size=10g inactive=30d use_temp_path=off;
 
 server {
     server_name cdn.example.com;
@@ -155,11 +147,10 @@ After=network.target
 Type=simple
 User=www-data
 Group=www-data
-EnvironmentFile=/etc/image_resizer.env
-ExecStart=/usr/local/bin/image_resizer
+EnvironmentFile=/opt/image_resizer/.env
+ExecStart=/opt/image_resizer/image_resizer
 Restart=always
 RestartSec=3
-
 NoNewPrivileges=true
 ProtectSystem=full
 
@@ -181,7 +172,3 @@ sudo systemctl enable --now image_resizer
 ## License
 
 MIT OR Apache-2.0
-
-```
-
-```
